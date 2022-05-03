@@ -8,7 +8,7 @@ Integrated Exporter for CosmosSDK
 This Prometheus exporter is for monitoring information which is not provided from Tendermint’s basic Prometheus exporter(localhost:26660)
 
 ## List of supported chains
-Cosmos(cosmoshub-4), IRISnet(irishub-1), BandProtocol-testnet(band-laozi-testnet1), Terra(bombay), Starname(iov-mainnet-ibc), Certik(shentu-2), Rizon(titan-1)
+Cosmos(cosmoshub-4), IRISnet(irishub-1), BandProtocol-testnet(band-laozi-testnet1), Terra(bombay), Starname(iov-mainnet-ibc), Certik(shentu-2), Rizon(titan-1), Secret(secret-4)
 
 ## Install
 ```bash
