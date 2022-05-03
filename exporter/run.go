@@ -103,11 +103,23 @@ func setConfig(chain string) {
 		Bech32PrefixValPub := Bech32MainPrefix + PrefixValidator + PrefixOperator + PrefixPublic
 		Bech32PrefixConsAddr := Bech32MainPrefix + PrefixValidator + PrefixConsensus
 		Bech32PrefixConsPub := Bech32MainPrefix + PrefixValidator + PrefixConsensus + PrefixPublic
-			config := sdk.GetConfig()
-			config.SetBech32PrefixForAccount(Bech32PrefixAccAddr, Bech32PrefixAccPub)
-			config.SetBech32PrefixForValidator(Bech32PrefixValAddr, Bech32PrefixValPub)
-			config.SetBech32PrefixForConsensusNode(Bech32PrefixConsAddr, Bech32PrefixConsPub)
-			config.Seal()
+		config := sdk.GetConfig()
+		config.SetBech32PrefixForAccount(Bech32PrefixAccAddr, Bech32PrefixAccPub)
+		config.SetBech32PrefixForValidator(Bech32PrefixValAddr, Bech32PrefixValPub)
+		config.SetBech32PrefixForConsensusNode(Bech32PrefixConsAddr, Bech32PrefixConsPub)
+		config.Seal()
+	case "secret":
+		bech32MainPrefix := "secret"
+		var bip44CoinType uint32 = 529
+
+		accountPrefix := bech32MainPrefix
+		validatorPrefix := bech32MainPrefix + sdk.PrefixValidator + sdk.PrefixOperator
+		consensusPrefix := bech32MainPrefix + sdk.PrefixValidator + sdk.PrefixConsensus
+
+		config.SetBech32PrefixForAccount(accountPrefix, accountPrefix+sdk.PrefixPublic)
+		config.SetBech32PrefixForValidator(validatorPrefix, validatorPrefix+sdk.PrefixPublic)
+		config.SetBech32PrefixForConsensusNode(consensusPrefix, consensusPrefix+sdk.PrefixPublic)
+		config.SetCoinType(bip44CoinType)
 	}
 
 	config.Seal()

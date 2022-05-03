@@ -21,11 +21,11 @@ var (
 	chainList []string
 
 	// command로 안 받을 경우 defult 값 지정
-	chain      string = "secret-4"
+	chain      string = ""
 	restAddr   string = "localhost:1317"
 	listenPort string = "26661"
 
-	operAddr string= ""
+	operAddr string = ""
 )
 
 // versionCmd represents the version command
