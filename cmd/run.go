@@ -23,8 +23,8 @@ var (
 	chainList []string
 
 	// command로 안 받을 경우 defult 값 지정
-	chain string = ""
-        restAddr string = "localhost:1317"
+	chain      string = "secret-4"
+	restAddr   string = "localhost:1317"
 	listenPort string = "26661"
 
 	operAddr string= ""
