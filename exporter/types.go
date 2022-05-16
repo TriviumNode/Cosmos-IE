@@ -54,6 +54,7 @@ type metric struct {
 		Minting struct {
 			Inflation       float64
 			ActualInflation float64
+			CommunityPool   []rest.Coin
 		}
 
 		Gov struct {
