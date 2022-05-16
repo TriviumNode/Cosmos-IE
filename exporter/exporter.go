@@ -2,9 +2,10 @@ package exporter
 
 import (
 	"fmt"
-	"time"
-	"go.uber.org/zap"
 	"strconv"
+	"time"
+
+	"go.uber.org/zap"
 
 	rest "github.com/node-a-team/Cosmos-IE/rest/common"
 	utils "github.com/node-a-team/Cosmos-IE/utils"
@@ -13,7 +14,7 @@ import (
 )
 
 var (
-	defaultGauges []prometheus.Gauge
+	defaultGauges    []prometheus.Gauge
 	additionalGauges []prometheus.Gauge
 
 	gaugesDenom []prometheus.Gauge
@@ -28,32 +29,32 @@ func Start(chain string, log *zap.Logger) {
 
 	// nomal guages
 	for i := 0; i < len(gaugesNamespaceList); i++ {
-                defaultGauges[i] = utils.NewGauge("exporter", gaugesNamespaceList[i], "")
-                prometheus.MustRegister(defaultGauges[i])
-        }
+		defaultGauges[i] = utils.NewGauge("exporter", gaugesNamespaceList[i], "")
+		prometheus.MustRegister(defaultGauges[i])
+	}
 
 	// denom gagues
 	count := 0
-	for i := 0; i < len(denomList)*3; i += 3 {
+	for i := 0; i < len(denomList)*4; i += 4 {
 
 		gaugesDenom[i] = utils.NewGauge("exporter_balances", denomList[count], "")
 		gaugesDenom[i+1] = utils.NewGauge("exporter_commission", denomList[count], "")
 		gaugesDenom[i+2] = utils.NewGauge("exporter_rewards", denomList[count], "")
+		gaugesDenom[i+3] = utils.NewGauge("exporter_community_pool", denomList[count], "")
 		prometheus.MustRegister(gaugesDenom[i])
 		prometheus.MustRegister(gaugesDenom[i+1])
 		prometheus.MustRegister(gaugesDenom[i+2])
+		prometheus.MustRegister(gaugesDenom[i+3])
 
 		count++
 	}
 
-
 	// labels
 	labels := []string{"chainId", "moniker", "operatorAddress", "accountAddress", "consHexAddress"}
-//	labels := []string{"chainId", "moniker", "operatorAddress", "accountAddress"}
+	//	labels := []string{"chainId", "moniker", "operatorAddress", "accountAddress"}
 	gaugesForLabel := utils.NewCounterVec("exporter", "labels", "", labels)
 
 	prometheus.MustRegister(gaugesForLabel)
-
 
 	for {
 		func() {
@@ -68,7 +69,7 @@ func Start(chain string, log *zap.Logger) {
 			}()
 
 			blockData := rest.GetBlocks(log)
-                        currentBlockHeight, _:= strconv.ParseInt(blockData.Block.Header.Height, 10, 64)
+			currentBlockHeight, _ := strconv.ParseInt(blockData.Block.Header.Height, 10, 64)
 
 			if previousBlockHeight != currentBlockHeight {
 
@@ -79,24 +80,29 @@ func Start(chain string, log *zap.Logger) {
 				SetMetric(currentBlockHeight, restData, log)
 				metricData := GetMetric()
 
-				// balances, commission, rewards,
+				// balances, commission, rewards, community pool
 				count := 0
-				for i := 0; i < len(denomList)*3; i +=3 {
+				for i := 0; i < len(denomList)*4; i += 4 {
 					for _, value := range metricData.Validator.Account.Balances {
 						if value.Denom == denomList[count] {
 							gaugesDenom[i].Set(utils.StringToFloat64(value.Amount))
 						}
 					}
 					for _, value := range metricData.Validator.Account.Commission {
-                                                if value.Denom == denomList[count] {
+						if value.Denom == denomList[count] {
 							gaugesDenom[i+1].Set(utils.StringToFloat64(value.Amount))
 						}
-                                        }
+					}
 					for _, value := range metricData.Validator.Account.Rewards {
-                                                if value.Denom == denomList[count] {
+						if value.Denom == denomList[count] {
 							gaugesDenom[i+2].Set(utils.StringToFloat64(value.Amount))
 						}
-                                        }
+					}
+					for _, value := range metricData.Network.Minting.CommunityPool {
+						if value.Denom == denomList[count] {
+							gaugesDenom[i+3].Set(utils.StringToFloat64(value.Amount))
+						}
+					}
 					count++
 				}
 
@@ -115,8 +121,8 @@ func Start(chain string, log *zap.Logger) {
 					metricData.Validator.MinSelfDelegation,
 					metricData.Validator.JailStatus,
 
-//					metricData.Validator.Proposer.Ranking,
-//					metricData.Validator.Proposer.Status,
+					//					metricData.Validator.Proposer.Ranking,
+					//					metricData.Validator.Proposer.Status,
 
 					metricData.Validator.Delegation.Shares,
 					metricData.Validator.Delegation.Ratio,
@@ -126,22 +132,22 @@ func Start(chain string, log *zap.Logger) {
 					metricData.Validator.Commission.Rate,
 					metricData.Validator.Commission.MaxRate,
 					metricData.Validator.Commission.MaxChangeRate,
-//					metricData.Validator.Commit.VoteType,
+					//					metricData.Validator.Commit.VoteType,
 					metricData.Validator.Commit.PrecommitStatus,
 
 					metricData.Network.Minting.Inflation,
 					metricData.Network.Minting.ActualInflation,
 				}
 
-				for i:=0; i < len(gaugesNamespaceList); i++ {
+				for i := 0; i < len(gaugesNamespaceList); i++ {
 					defaultGauges[i].Set(gaugesValue[i])
 				}
 
 				gaugesForLabel.WithLabelValues(metricData.Network.ChainID,
-								metricData.Validator.Moniker,
-								metricData.Validator.Address.Operator,
-								metricData.Validator.Address.Account,
-								metricData.Validator.Address.ConsensusHex,
+					metricData.Validator.Moniker,
+					metricData.Validator.Address.Operator,
+					metricData.Validator.Address.Account,
+					metricData.Validator.Address.ConsensusHex,
 				).Add(0)
 
 				addGauges(chain, metricData, log)
@@ -156,36 +162,36 @@ func Start(chain string, log *zap.Logger) {
 func addGauges(chain string, metricData *metric, log *zap.Logger) {
 
 	if chain == "band" {
-                if len(additionalGauges) == 0 {
-                        additionalGauges = make([]prometheus.Gauge, len(gaugesNamespaceList_Band))
+		if len(additionalGauges) == 0 {
+			additionalGauges = make([]prometheus.Gauge, len(gaugesNamespaceList_Band))
 
-                        for i := 0; i < len(gaugesNamespaceList_Band); i++ {
-                                additionalGauges[i] = utils.NewGauge("exporter", gaugesNamespaceList_Band[i], "")
-                                prometheus.MustRegister(additionalGauges[i])
-                        }
-                } else {
-                        gaugesValue := [...]float64{
+			for i := 0; i < len(gaugesNamespaceList_Band); i++ {
+				additionalGauges[i] = utils.NewGauge("exporter", gaugesNamespaceList_Band[i], "")
+				prometheus.MustRegister(additionalGauges[i])
+			}
+		} else {
+			gaugesValue := [...]float64{
 				metricData.Validator.Oracle.Active,
-                        }
-                        for i:=0; i < len(gaugesNamespaceList_Band); i++ {
-                                additionalGauges[i].Set(gaugesValue[i])
-                        }
-                }
-        } else if chain == "terra" {
+			}
+			for i := 0; i < len(gaugesNamespaceList_Band); i++ {
+				additionalGauges[i].Set(gaugesValue[i])
+			}
+		}
+	} else if chain == "terra" {
 		if len(additionalGauges) == 0 {
 			additionalGauges = make([]prometheus.Gauge, len(gaugesNamespaceList_Terra))
 
 			for i := 0; i < len(gaugesNamespaceList_Terra); i++ {
-                                additionalGauges[i] = utils.NewGauge("exporter", gaugesNamespaceList_Terra[i], "")
-                                prometheus.MustRegister(additionalGauges[i])
+				additionalGauges[i] = utils.NewGauge("exporter", gaugesNamespaceList_Terra[i], "")
+				prometheus.MustRegister(additionalGauges[i])
 			}
 		} else {
 			gaugesValue := [...]float64{
 				metricData.Validator.Oracle.Miss,
-		        }
-			for i:=0; i < len(gaugesNamespaceList_Terra); i++ {
-		                additionalGauges[i].Set(gaugesValue[i])
-		        }
+			}
+			for i := 0; i < len(gaugesNamespaceList_Terra); i++ {
+				additionalGauges[i].Set(gaugesValue[i])
+			}
 		}
 	}
 }

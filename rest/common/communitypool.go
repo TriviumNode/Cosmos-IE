@@ -23,7 +23,7 @@ func getCommunityPool(log *zap.Logger) []Coin {
 		// handle error
 		log.Fatal("", zap.Bool("Success", false), zap.String("err", string(res)))
 	} else {
-		log.Info("\t", zap.Bool("Success", true), zap.String("Commission", fmt.Sprint(p.Pool)))
+		log.Info("\t", zap.Bool("Success", true), zap.String("Community Pool", fmt.Sprint(p.Pool)))
 	}
 
 	return p.Pool
