@@ -53,7 +53,7 @@ func GetData(chain string, blockHeight int64, blockData Blocks, denom string, lo
 	AccAddr = utils.GetAccAddrFromOperAddr(OperAddr, log)
 
 	rd := newRESTData(blockHeight)
-	rd.StakingPool = getStakingPool(denom, log)
+	rd.StakingPool = getStakingPool(chain, denom, log)
 
 	rd.Validatorsets = getValidatorsets(blockHeight, log)
 	rd.Validator = getValidators(log)

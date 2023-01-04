@@ -29,7 +29,7 @@ func GetBlocks(log *zap.Logger) Blocks {
 
         var b Blocks
 
-        res, _ := runRESTCommand("/blocks/latest")
+        res, _ := runRESTCommand("/cosmos/base/tendermint/v1beta1/blocks/latest")
         json.Unmarshal(res, &b)
 
         // log
