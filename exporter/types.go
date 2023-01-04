@@ -122,7 +122,7 @@ func getDenomList(chain string) []string {
 		dList = []string{"uatom"}
 	case "iris":
 		dList = []string{"uiris"}
-		//		dList = []string{"ubif"}
+		// dList = []string{"ubif"}
 	case "band":
 		dList = []string{"uband"}
 	case "terra":
@@ -131,8 +131,7 @@ func getDenomList(chain string) []string {
 	case "kava":
 		dList = []string{"ukava"}
 	case "emoney":
-		dList = []string{"ungm",
-			"eeur", "echf", "edkk", "enok", "esek"}
+		dList = []string{"ungm", "eeur", "echf", "edkk", "enok", "esek"}
 	case "starname":
 		dList = []string{"uiov"}
 	case "certik":
@@ -143,6 +142,10 @@ func getDenomList(chain string) []string {
 		dList = []string{"uscrt"}
 	case "tgrade":
 		dList = []string{"utgrade"}
+	case "sentinel":
+		dList = []string{"udvpn", "udec"}
+	case "akash":
+		dList = []string{"akt"}
 	}
 
 	return dList

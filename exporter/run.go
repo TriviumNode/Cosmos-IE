@@ -40,6 +40,16 @@ func Go(chain string, port string) {
 
 }
 
+func setDefaultConfig(config *sdk.Config, bech32MainPrefix string) {
+	accountPrefix := bech32MainPrefix
+	validatorPrefix := bech32MainPrefix + sdk.PrefixValidator + sdk.PrefixOperator
+	consensusPrefix := bech32MainPrefix + sdk.PrefixValidator + sdk.PrefixConsensus
+
+	config.SetBech32PrefixForAccount(accountPrefix, accountPrefix+sdk.PrefixPublic)
+	config.SetBech32PrefixForValidator(validatorPrefix, validatorPrefix+sdk.PrefixPublic)
+	config.SetBech32PrefixForConsensusNode(consensusPrefix, consensusPrefix+sdk.PrefixPublic)
+}
+
 func setConfig(chain string) {
 
 	config := sdk.GetConfig()
@@ -53,16 +63,8 @@ func setConfig(chain string) {
 		bech32MainPrefix := "band"
 		var bip44CoinType uint32 = 494
 
-		accountPrefix := bech32MainPrefix
-		validatorPrefix := bech32MainPrefix + sdk.PrefixValidator + sdk.PrefixOperator
-		consensusPrefix := bech32MainPrefix + sdk.PrefixValidator + sdk.PrefixConsensus
-
-		config.SetBech32PrefixForAccount(accountPrefix, accountPrefix+sdk.PrefixPublic)
-		config.SetBech32PrefixForValidator(validatorPrefix, validatorPrefix+sdk.PrefixPublic)
-		config.SetBech32PrefixForConsensusNode(consensusPrefix, consensusPrefix+sdk.PrefixPublic)
+		setDefaultConfig(config, bech32MainPrefix)
 		config.SetCoinType(bip44CoinType)
-
-		//		fmt.Println(accountPrefix, validatorPrefix, consensusPrefix)
 
 	case "terra":
 		config.SetCoinType(terra.CoinType)
@@ -152,7 +154,14 @@ func setConfig(chain string) {
 		config.SetBech32PrefixForConsensusNode(consensusPrefix, consensusPrefix+sdk.PrefixPublic)
 		config.SetCoinType(bip44CoinType)
 		//	config.SetAddressVerifier(VerifyAddressLen())
-		config.Seal()
+
+	case "sentinel":
+		bech32MainPrefix := "sent"
+		setDefaultConfig(config, bech32MainPrefix)
+
+	case "akash":
+		bech32MainPrefix := "akash"
+		setDefaultConfig(config, bech32MainPrefix)
 	}
 
 	config.Seal()
